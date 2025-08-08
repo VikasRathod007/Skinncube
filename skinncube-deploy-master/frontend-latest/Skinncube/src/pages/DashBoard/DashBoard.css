@@ -1,0 +1,159 @@
+/* DashBoard.css */
+
+.dashboard {
+  display: flex;
+}
+
+.error {
+  color: red;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  height: auto;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 15px 0;
+  cursor: pointer;
+}
+
+.sidebar ul li:hover {
+  background-color: #34495e;
+  padding: 5px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.add-product,
+.product-list {
+  width: 45%;
+}
+
+.add-product input,
+.product-list input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-product button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-product button:hover {
+  background-color: #2980b9;
+}
+
+.product-list h2 {
+  margin: 30px 30px 20px 30px;
+}
+
+.product-list select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.product-list table {
+  margin: 0px 30px;
+  width: 1200px;
+  padding: 500px;
+  align-self: center;
+  border-collapse: collapse;
+}
+
+.product-list th,
+.product-list td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-list th {
+  background-color: #f1f1f1;
+}
+
+.product-list button {
+  padding: 5px 10px;
+  width: 70px;
+  margin: 5px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.product-list button:hover {
+  background-color: #c0392b;
+}
+
+.product-list img {
+  max-width: 150px;
+  max-height: 150px;
+}
+
+.edit-product,
+.add-product {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.edit-product input,
+.add-product input,
+.edit-product select,
+.add-product select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.edit-product button,
+.add-product button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-product button:hover,
+.add-product button:hover {
+  background-color: #2980b9;
+}

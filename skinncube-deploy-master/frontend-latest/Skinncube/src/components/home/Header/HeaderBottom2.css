@@ -1,0 +1,113 @@
+.header2 {
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative; /* ya zIndex jo bhi header ki styling mein hai */
+    z-index: 1; /* ensure header is behind dropdown */
+  }
+  
+  .nav-link {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s;
+  }
+  
+  .nav-link:hover {
+    color: #8a3ab9;
+  }
+  
+  .navColor {
+    background-color: #f8f9fa;
+  }
+  
+  /* Dropdown Menu Styles */
+  .relative {
+    position: relative;
+  }
+  
+  .absolute {
+    position: absolute;
+  }
+  
+  .dropdown-content {
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    z-index: 1;
+    width: 256px;
+  }
+  
+  .dropdown-content ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dropdown-content li {
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .dropdown-content li:hover {
+    background-color: #f1f1f1;
+    color: #8a3ab9;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  /* Submenu Items */
+  .pl-4 {
+    padding-left: 16px;
+  }
+  
+  /* Remove Sidenav Styles */
+  .sidenav {
+    display: none; /* Isse hide kar dijiye */
+  }
+  
+  /* Mobile Menu Toggle Icon */
+  .inline-block {
+    display: none; /* Isse remove kar dijiye */
+  }
+  
+  /* Hover Effects */
+  .hover\:underline:hover {
+    text-decoration: underline;
+  }
+  
+  .hover\:text-black:hover {
+    color: #000;
+  }
+  
+  .hover\:text-white:hover {
+    color: #fff;
+  }
+  
+  .hover\:border-red-500:hover {
+    border-color: #f56565;
+  }
+  
+  .hover\:text-red-500:hover {
+    color: #f56565;
+  }
+  
+  .text-gray-300 {
+    color: #d1d5db;
+  }
+  
+  .bg-opacity-80 {
+    background-opacity: 0.8;
+  }
+  
+  .bg-primeColor {
+    background-color: #1a1a1a; /* Adjust color as needed */
+  }

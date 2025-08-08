@@ -1,0 +1,12 @@
+{
+    local_certs
+}
+
+skinncube.localhost {
+    encode gzip
+    reverse_proxy frontend:3000
+}
+
+skinncube.backend.localhost {
+    reverse_proxy backend:8000
+}

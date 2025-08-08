@@ -1,0 +1,12 @@
+# Dev Stage
+FROM node:18-bookworm-slim as development
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm start

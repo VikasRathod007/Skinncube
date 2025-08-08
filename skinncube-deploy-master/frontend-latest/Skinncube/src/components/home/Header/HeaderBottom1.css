@@ -1,0 +1,8 @@
+.dropdown1 {
+    position: absolute; /* ya jo bhi position dropdown ke liye lagayi hai */
+    z-index: 10; /* ya 1 se zyada value de jo header se upar aaye */
+}
+body {
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+  }
+  

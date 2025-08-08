@@ -1,0 +1,68 @@
+name: mern-app
+
+services:
+  mongo:
+    image: mongo:7.0.12
+    container_name: mongo
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mern-app
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - storage_data_on_backend:/app/public/resized
+    env_file: ./backend/src/.env
+    networks:
+      - mern-app
+    depends_on:
+      - mongo
+    
+  frontend:
+    build:
+      context: ./frontend-latest/Skinncube
+      target: production
+      args:
+        - REACT_APP_API_URL=backend.${DOMAIN_NAME}
+    restart: unless-stopped
+    # env_file: ./frontend-latest/src/.env
+    # command: npm start -- --host
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - mern-app
+    depends_on:
+      - mongo
+      - backend
+  
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - mern-app
+    depends_on:
+      - mongo
+      - backend
+      - frontend
+
+volumes:
+  mongo_data:
+  caddy_data:
+  caddy_config:
+  storage_data_on_backend:
+networks:
+  mern-app:
+    driver: bridge
