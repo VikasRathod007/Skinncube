@@ -1,18 +1,51 @@
-# Dev Stage
+# Development Stage
 FROM node:18-bookworm-slim as development
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
 
+# Install dependencies
 RUN npm install
 
+# Copy source code
 COPY . .
 
-ARG REACT_APP_API_URL
-RUN REACT_APP_API_URL=${REACT_APP_API_URL} npm run build
+# Expose development port
+EXPOSE 3000
 
-# Prod Stage
+# Start development server
+CMD ["npm", "start"]
+
+# Build Stage
+FROM node:18-bookworm-slim as build
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build arguments for environment
+ARG NODE_ENV=production
+ARG REACT_APP_DOMAIN=skinncube.com
+
+# Build the application
+RUN NODE_ENV=${NODE_ENV} REACT_APP_DOMAIN=${REACT_APP_DOMAIN} npm run build
+
+# Production Stage
 FROM caddy:2-alpine as production
-COPY Caddyfile /etc/caddy/Caddyfile
-COPY --from=development /app/build /srv
+
+# Copy built application
+COPY --from=build /app/build /srv
+
+# Expose ports
+EXPOSE 80 443
+
+# Caddy will use the Caddyfile mounted from docker-compose

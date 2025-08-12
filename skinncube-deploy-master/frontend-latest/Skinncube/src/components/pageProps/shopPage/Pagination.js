@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import Product from "../../home/Products/Product";
 import { fetchMedicines } from "../../../services/medicineService";
+import { getAssetUrl } from "../../../utils/apiUtils"
 
 const Items = ({ currentItems }) => {
   console.log(currentItems)
@@ -19,7 +20,7 @@ const Items = ({ currentItems }) => {
               isShowList={true}
               isAnotherShowList={false}
               des={item.description}
-              img={`https://${process.env.REACT_APP_API_URL}/${item.images}`}
+              img={`${getAssetUrl()}/${item.images}`}
             />
           </div>
         ))}
@@ -55,10 +56,10 @@ const Pagination = ({ itemsPerPage, selectedSubcategories }) => {
   }, [currentPage, itemsPerPage]);
 
   const filteredItems = selectedSubcategories.length
-  ? items.filter((item) =>
+    ? items.filter((item) =>
       selectedSubcategories.includes(item.subcategory?._id)
     )
-  : items; 
+    : items;
 
   // Pagination logic
   const pageCount = Math.ceil(totalCount / itemsPerPage);

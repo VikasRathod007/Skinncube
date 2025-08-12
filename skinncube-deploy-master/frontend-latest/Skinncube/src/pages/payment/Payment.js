@@ -9,6 +9,7 @@ import { addAddress } from '../../services/userService';
 import { ClipLoader } from "react-spinners";
 import { checkAuthAsync } from '../Account/authHandle/authSlice';
 import axios from 'axios';
+import { getApiUrl } from '../../utils/apiUtils'
 
 const Payment = () => {
 
@@ -60,25 +61,25 @@ const Payment = () => {
     }
     try {
       // console.log(selectedAddress);
-      
-      const response = await axios.post(`https://${process.env.REACT_APP_API_URL}/api/v1/order/initiate-payment`, {
+
+      const response = await axios.post(`${getApiUrl()}/api/v1/order/initiate-payment`, {
         totalAmt,
         transactionId: `TXN${Date.now()}`,
         addressId: selectedAddress,
-      },{
+      }, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      console.log(response);      
+      console.log(response);
       const paymentUrl = response.data.data.paymentUrl;
       console.log(paymentUrl);
-      
+
       window.location.href = paymentUrl;
     } catch (error) {
       console.error("Payment Error: ", error.message);
     }
   };
-  
+
 
   const [shippingMethods] = useState([
     'Standard Shipping',
@@ -104,12 +105,12 @@ const Payment = () => {
         postalCode: newAddress.postalCode,
         country: newAddress.country,
       };
-      
+
       const updatedAddresses = await addAddress(fullAddress);
       console.log(updatedAddresses)
       console.log(updatedAddresses.data);
-      
-      
+
+
       setAddresses(updatedAddresses.data); // Assuming API returns updated addresses
       toast.success("Address added successfully!");
       setNewAddress({ street: '', city: '', postalCode: '', country: '' });
@@ -138,7 +139,7 @@ const Payment = () => {
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           <div className="space-y-4">
-            
+
             <div className="border-t pt-4">
               <h3 className="font-medium mb-2">Items:</h3>
 
@@ -208,7 +209,7 @@ const Payment = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="border-t pt-4 flex justify-between items-center font-bold text-lg">
               <span>Total:</span>
               <span>Rs. {totalAmt}</span>

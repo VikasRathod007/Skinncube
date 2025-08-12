@@ -3,6 +3,7 @@ import { ImCross } from "react-icons/im";
 import { useDispatch } from "react-redux";
 import { updateQuantity, deleteCartItem } from "../../redux/orebiSlice";
 import { toast } from "react-toastify";
+import { getAssetUrl } from "../../utils/apiUtils"
 
 const ItemCard = ({ item }) => {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ const ItemCard = ({ item }) => {
     try {
       // Dispatch deleteCartItem action
       await dispatch(deleteCartItem(itemId));
-      
+
       toast.success("Item removed from cart!");
     } catch (error) {
       toast.error("Failed to remove item from cart.");
@@ -25,7 +26,7 @@ const ItemCard = ({ item }) => {
           onClick={() => handleDelete(item._id)}
           className="text-primeColor hover:text-red-500 duration-300 cursor-pointer"
         />
-        <img className="w-32 h-32" src={`https://${process.env.REACT_APP_API_URL}/${item.medicine.images}`} alt="productImage" />
+        <img className="w-32 h-32" src={`${getAssetUrl()}/${item.medicine.images}`} alt="productImage" />
         <h1 className="font-titleFont font-semibold">{item.medicine?.name || "Product Name"}</h1>
       </div>
       <div className="col-span-5 mdl:col-span-3 flex items-center justify-between py-4 mdl:py-0 px-4 mdl:px-0 gap-6 mdl:gap-0">
