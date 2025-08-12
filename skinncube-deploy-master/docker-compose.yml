@@ -5,10 +5,17 @@ services:
     image: mongo:7.0.12
     container_name: mongo
     restart: unless-stopped
+    ports:
+      - "27017:27017"  # Expose MongoDB port to host
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoAdmin
+      - MONGO_INITDB_ROOT_PASSWORD=skincubeAdminPass
     volumes:
       - mongo_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - skincube-network
+    command: mongod --auth
 
   backend:
     build:
