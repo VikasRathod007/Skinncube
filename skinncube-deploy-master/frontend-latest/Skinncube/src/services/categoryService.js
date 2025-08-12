@@ -1,19 +1,21 @@
 import axios from "axios";
-
-const apiUrl = process.env.REACT_APP_API_URL
+import { getApiUrl } from "../utils/apiUtils";
 
 export const fetchCategories = async () => {
   try {
-    const response = await axios.get(`https://${apiUrl}/api/v1/category/get-all-category`);
+    const apiEndpoint = getApiUrl('/api/v1/category/get-all-category');
+    const response = await axios.get(apiEndpoint);
     return response.data; // Return the data from the API
   } catch (error) {
+    console.error('API Error:', error);
     throw new Error("Error fetching categories: " + error.message);
   }
 };
 
 export const addCategories = async (categoryData) => {
   try {
-    const response = await axios.post(`https://${apiUrl}/api/v1/category/create-category`, 
+    const apiEndpoint = getApiUrl('/api/v1/category/create-category');
+    const response = await axios.post(apiEndpoint,
       categoryData,
       {
         headers: { "Content-Type": "application/json" },
@@ -22,13 +24,14 @@ export const addCategories = async (categoryData) => {
     );
     return response.data; // Return the data from the API
   } catch (error) {
-    throw new Error("Error fetching categories: " + error.message);
+    throw new Error("Error creating category: " + error.message);
   }
 };
 
 export const deleteCategory = async (categoryId) => {
   try {
-    const response = await axios.delete(`https://${apiUrl}/api/v1/category/delete-category/${categoryId}`, {
+    const apiEndpoint = getApiUrl(`/api/v1/category/delete-category/${categoryId}`);
+    const response = await axios.delete(apiEndpoint, {
       withCredentials: true,
     });
     return response.data; // Return the response data

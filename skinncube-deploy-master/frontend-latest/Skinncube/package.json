@@ -30,7 +30,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "react-scripts start",
+    "build:prod": "NODE_ENV=production react-scripts build",
+    "env-info": "node -e \"console.log('Environment Info:', {nodeEnv: process.env.NODE_ENV, domain: process.env.REACT_APP_DOMAIN, isDev: process.env.NODE_ENV === 'development'})\"",
+    "analyze": "npm run build && npx serve -s build"
   },
   "eslintConfig": {
     "extends": [

@@ -1,10 +1,9 @@
-import axios from "axios";
-
-const apiUrl = process.env.REACT_APP_API_URL
+import axios from 'axios'
+import { getApiUrl } from '../utils/apiUtils'
 
 export const fetchSubCategories = async () => {
   try {
-    const response = await axios.get(`https://${apiUrl}/api/v1/subcategory/get-all-sub-category`);
+    const response = await axios.get(`${getApiUrl()}/api/v1/subcategory/get-all-sub-category`);
     return response.data; // Return the data from the API
   } catch (error) {
     throw new Error("Error fetching categories: " + error.message);
@@ -13,7 +12,7 @@ export const fetchSubCategories = async () => {
 
 export const addSubCategory = async (data) => {
   try {
-    const response = await axios.post(`https://${apiUrl}/api/v1/subcategory/add-subcategory`, data, {
+    const response = await axios.post(`${getApiUrl()}/api/v1/subcategory/add-subcategory`, data, {
       withCredentials: true,
     });
     return response.data;
@@ -25,7 +24,7 @@ export const addSubCategory = async (data) => {
 
 export const deleteSubCategory = async (subCategoryId) => {
   try {
-    const response = await axios.delete(`https://${apiUrl}/api/v1/subcategory/delete-subcategory/${subCategoryId}`, {
+    const response = await axios.delete(`${getApiUrl()}/api/v1/subcategory/delete-subcategory/${subCategoryId}`, {
       withCredentials: true, // Ensure credentials are sent with the request
     });
     return response.data; // Return the response data

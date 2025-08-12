@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { checkAuthAsync } from "../Account/authHandle/authSlice";
 import { addPharmacyService, fetchOrders } from "../../services/orderService";
 import { fetchPharmacy } from "../../services/pharmacyService";
+import { getAssetUrl } from "../../utils/apiUtils"
 
 const prescription_required_string = ["true", "false"];
 
@@ -32,7 +33,7 @@ const Dashboard = () => {
   });
   const [categories1, setCategories] = useState([]);
   const [newCat, setNewCat] = useState({
-    name:"",
+    name: "",
   })
   const [subcategory1, setSubCategories] = useState([]);
   const [error, setError] = useState(null);
@@ -49,13 +50,13 @@ const Dashboard = () => {
       const result = await dispatch(checkAuthAsync());
       // Check if the payload has a status 401 indicating unauthorized access
       console.log(result);
-      
+
       if (result?.payload?.status === 401) {
         toast.error("You must be logged in to access this page");
         navigate("/signin");
       }
 
-      if(result?.payload?.user.role==="user"){
+      if (result?.payload?.user.role === "user") {
         toast.error("Admin Privilege Required")
         navigate("/")
       }
@@ -67,70 +68,70 @@ const Dashboard = () => {
     try {
       const categoryData = await fetchCategories();
       console.log(categoryData.data);
-      
+
       setCategories(categoryData.data); // Set categories state
     } catch (error) {
       setError(error.message); // Handle error if the fetch fails
     }
   };
 
-  useEffect(() => {    
-    loadCategories();    
+  useEffect(() => {
+    loadCategories();
   }, []);
 
   const loadSubCategories = async () => {
     try {
       const subcategoryData = await fetchSubCategories();
       console.log(subcategoryData.data);
-      
+
       setSubCategories(subcategoryData.data); // Set categories state
     } catch (error) {
       setError(error.message); // Handle error if the fetch fails
     }
   };
 
-  useEffect(() => {    
-    loadSubCategories();    
+  useEffect(() => {
+    loadSubCategories();
   }, []);
 
   const fetchUserOrders = async () => {
-      try {
-        const response = await fetchOrders();
-        setUserOrders(response.data);
-      } catch (error) {
-        console.error("Failed to fetch orders:", error.message);
-      }
-    };
-  
-    useEffect(() => {
-      fetchUserOrders();
-    }, []);
+    try {
+      const response = await fetchOrders();
+      setUserOrders(response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error.message);
+    }
+  };
 
-    const formatDate = (isoDate) => {
-      const date = new Date(isoDate);
-      return date.toLocaleString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    };
+  useEffect(() => {
+    fetchUserOrders();
+  }, []);
 
-    const handlePharmacyChange = (orderId, pharmacyName) => {
-      setSelectedPharmacies((prev) => ({
-        ...prev,
-        orderId: pharmacyName,
-      }));
-    };
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    return date.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  const handlePharmacyChange = (orderId, pharmacyName) => {
+    setSelectedPharmacies((prev) => ({
+      ...prev,
+      orderId: pharmacyName,
+    }));
+  };
 
   // Function to fetch products
   const fetchProducts = async (page, limit) => {
     try {
       const { data, meta } = await fetchMedicines({ page, limit });
-      setProducts(data); 
+      setProducts(data);
     } catch (err) {
       setError(err.message || "Failed to fetch products");
     }
@@ -166,7 +167,7 @@ const Dashboard = () => {
   const fetchPharmacyFunc = async () => {
     try {
       const { data } = await fetchPharmacy();
-      setallPharmacies(data); 
+      setallPharmacies(data);
     } catch (err) {
       setError(err.message || "Failed to fetch products");
     }
@@ -193,7 +194,7 @@ const Dashboard = () => {
       reset();
       toast.success("Product added successfully!");
       await fetchProducts();
-      
+
       // if (data.images && data.images[0]) {
       //   const file = data.images[0];
       //   const formData = new FormData();
@@ -204,15 +205,15 @@ const Dashboard = () => {
       //     }
       //   });
       //   const response = await addProductService(data);
-        // const reader = new FileReader();
-        // reader.onloadend = async () => {
-        //   const productData = { ...data, images: reader.result };
-        //   // console.log(productData);
-          
-        //   const response = await addProductService(productData);
-        //   toast.success("Product added successfully!");
-        // };
-        // reader.readAsDataURL(file);
+      // const reader = new FileReader();
+      // reader.onloadend = async () => {
+      //   const productData = { ...data, images: reader.result };
+      //   // console.log(productData);
+
+      //   const response = await addProductService(productData);
+      //   toast.success("Product added successfully!");
+      // };
+      // reader.readAsDataURL(file);
       // } else {
       //   const response = await addProductService(data);
       //   toast.success("Product added successfully without image!");
@@ -226,14 +227,14 @@ const Dashboard = () => {
 
   const onSubmitCategory = async (data) => {
     try {
-        // console.log(newCat);
-        const response = await addCategories(newCat);
-        setNewCat({
-          name:"",
-        })
-        loadCategories();
-        toast.success("Category added successfully!");
-      }
+      // console.log(newCat);
+      const response = await addCategories(newCat);
+      setNewCat({
+        name: "",
+      })
+      loadCategories();
+      toast.success("Category added successfully!");
+    }
     catch (error) {
       toast.error("Failed to add category. Please try again.");
     }
@@ -267,35 +268,35 @@ const Dashboard = () => {
     try {
       const response = await updateMedicineById(newProduct.id, newProduct);
       console.log(response);
-      
 
-    const updatedProducts = products.map((product) =>
-      product._id === newProduct._id ? { ...product, ...newProduct } : product
-    );
-    setProducts(updatedProducts);
-    toast.success("Product updated successfully")
-    setNewProduct({
-      name: "",
-      price: "",
-      quantity: "",
-      description: "",
-      subcategory: "",
-    });
-    setActiveSection("manageProducts"); // Switch back to manage products
-  } catch (error) {
-    console.error("Failed to update product:", error);
-  }
+
+      const updatedProducts = products.map((product) =>
+        product._id === newProduct._id ? { ...product, ...newProduct } : product
+      );
+      setProducts(updatedProducts);
+      toast.success("Product updated successfully")
+      setNewProduct({
+        name: "",
+        price: "",
+        quantity: "",
+        description: "",
+        subcategory: "",
+      });
+      setActiveSection("manageProducts"); // Switch back to manage products
+    } catch (error) {
+      console.error("Failed to update product:", error);
+    }
   };
 
   const deleteProduct = async (id) => {
     try {
-        const response = await deleteMedicineById(id);
-        toast.success(response.message || "Product deleted successfully!");
-        await fetchProducts();
+      const response = await deleteMedicineById(id);
+      toast.success(response.message || "Product deleted successfully!");
+      await fetchProducts();
     } catch (error) {
-        toast.success(error.message || "Failed Product deletion!");
+      toast.success(error.message || "Failed Product deletion!");
     }
-    
+
   };
 
   const handleDeleteCategory = async (categoryId) => {
@@ -328,7 +329,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <div className="sidebar">
-      {error && <p className="text-red-500">{error}</p>}
+        {error && <p className="text-red-500">{error}</p>}
         <h2>Admin Dashboard</h2>
         <ul>
           <li onClick={() => setActiveSection("home")}>Home</li>
@@ -353,7 +354,7 @@ const Dashboard = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="add-product-form">
               <div className="product-actions">
                 {/* Add Product Section */}
-                
+
                 <div className="add-product">
                   <h2>Add New Product</h2>
                   <input
@@ -390,25 +391,25 @@ const Dashboard = () => {
                     {...register("description", { required: "Description is required" })}
                   />
                   {errors.description && <p className="error">{errors.description.message}</p>}
-                  
+
                   <button type="submit">Add Product</button>
                 </div>
-                
+
                 <div className="product-list">
-                <h2>ㅤ</h2>
+                  <h2>ㅤ</h2>
                   <select {...register("categoryId", { required: "Category is required" })}>
                     <option value="">Select Category</option>
                     {categories1.map(({ _id, name }) => (
-                    <option key={_id} value={_id}>
-                      {name}
-                    </option>
-                  ))}
+                      <option key={_id} value={_id}>
+                        {name}
+                      </option>
+                    ))}
                   </select>
                   {errors.category && <p className="error">{errors.category.message}</p>}
 
                   <select {...register("subCategoryId", { required: "Subcategory is required" })}>
                     <option value="">Select Subcategory</option>
-                    {subcategory1.map(({_id, name}) => (
+                    {subcategory1.map(({ _id, name }) => (
                       <option key={_id} value={_id}>
                         {name}
                       </option>
@@ -446,54 +447,54 @@ const Dashboard = () => {
                     </div>
                   )}
                 </div>
-                
+
 
                 {/* Product List Section */}
               </div>
             </form>
 
             <div className="product-list">
-                <h2>Product List</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Description</th>
-                      <th>Category</th>
-                      <th>Sub-Category</th>
-                      <th>Prescription Required</th>
-                      <th>Image</th>
-                      <th>Actions</th>
+              <h2>Product List</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Sub-Category</th>
+                    <th>Prescription Required</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <tr key={product._id}>
+                      <td>{product.name}</td>
+                      <td>{product.price}</td>
+                      <td>{product.quantity}</td>
+                      <td>{product.description}</td>
+                      <td>{product.category.name}</td>
+                      <td>{product.subcategory.name}</td>
+                      <td>{product.prescriptionRequired ? "true" : "false"}</td>
+                      <td>
+                        <img
+                          src={`${getAssetUrl()}/${product.images}`}
+                          alt={"img"}
+                        // onError={(e) => { e.target.onerror = null; e.target.src = 'path/to/fallback/image.jpg'; }} 
+                        />
+                      </td>
+                      <td>
+                        <button onClick={() => handleEditProduct(product)}>Edit</button>
+                        <button onClick={() => deleteProduct(product._id)}>Delete</button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr key={product._id}>
-                        <td>{product.name}</td>
-                        <td>{product.price}</td>
-                        <td>{product.quantity}</td>
-                        <td>{product.description}</td>
-                        <td>{product.category.name}</td>
-                        <td>{product.subcategory.name}</td>
-                        <td>{product.prescriptionRequired ? "true" : "false"}</td>
-                        <td>
-                          <img 
-                            src={`https://${process.env.REACT_APP_API_URL}/${product.images}`} 
-                            alt={"img"} 
-                            // onError={(e) => { e.target.onerror = null; e.target.src = 'path/to/fallback/image.jpg'; }} 
-                          />
-                        </td>
-                        <td>
-                          <button onClick={() => handleEditProduct(product)}>Edit</button>
-                          <button onClick={() => deleteProduct(product._id)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -545,9 +546,9 @@ const Dashboard = () => {
               {categories1.map((category, index) => (
                 <option key={index} value={category.name}>
                   {category.name}
-                  
+
                 </option>
-                
+
               ))}
             </select>
             <select
@@ -557,8 +558,8 @@ const Dashboard = () => {
               {subcategory1.map((subcategory1, index) => (
                 <option key={index} value={subcategory1.name}>
                   {subcategory1.name}
-                  
-                </option>  
+
+                </option>
 
               ))}
             </select>
@@ -586,8 +587,8 @@ const Dashboard = () => {
 
         {activeSection === "manageCateogy" && (
           <div className="manage-products">
-          <h1>Manage Categories and subcategories</h1>
-            <div className="product-actions">              
+            <h1>Manage Categories and subcategories</h1>
+            <div className="product-actions">
               <div className="add-product">
                 <h2>Add New Category</h2>
                 <input
@@ -597,9 +598,9 @@ const Dashboard = () => {
                   onChange={(e) => setNewCat({ ...newCat, name: e.target.value })}
                   required
                 />
-                
+
                 <button onClick={onSubmitCategory}>Add Category</button>
-              </div>              
+              </div>
             </div>
 
             <div className="product-actions">
@@ -613,20 +614,20 @@ const Dashboard = () => {
                   onChange={(e) => setSubCategoryNameAdd(e.target.value)}
                 />
                 <select value={selectedCategoryforSubcategory}
-                        onChange={(e) => setSelectedCategoryforSubcategory(e.target.value)}>
-                    <option value="">Select Category</option>
-                    {categories1.map(({ _id, name }) => (
+                  onChange={(e) => setSelectedCategoryforSubcategory(e.target.value)}>
+                  <option value="">Select Category</option>
+                  {categories1.map(({ _id, name }) => (
                     <option key={_id} value={_id}>
                       {name}
                     </option>
                   ))}
-                  </select>
-                
+                </select>
+
                 <button type="submit" onClick={handleAddSubCategory}>Add Sub Category</button>
               </div>
             </div>
 
-          <div className="product-list">
+            <div className="product-list">
               <h2>Category List</h2>
               <table>
                 <thead>
@@ -637,7 +638,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {categories1.map((cat) => (
+                  {categories1.map((cat) => (
                     <tr key={cat._id}>
                       <td>{cat.name}</td>
                       <td>
@@ -650,7 +651,7 @@ const Dashboard = () => {
                         <button onClick={() => handleDeleteCategory(cat._id)}>Delete</button>
                       </td>
                     </tr>
-                ))}
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -665,7 +666,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {subcategory1.map((subCat) => (
+                  {subcategory1.map((subCat) => (
                     <tr key={subCat._id}>
                       <td>{subCat.name}</td>
                       <td>
@@ -673,17 +674,17 @@ const Dashboard = () => {
                         <button onClick={() => handleDeleteSubCategory(subCat._id)}>Delete</button>
                       </td>
                     </tr>
-                ))}
+                  ))}
                 </tbody>
               </table>
             </div>
-        </div>
+          </div>
         )}
 
         {activeSection === "manageOrders" && (
           <div className="manage-products">
-          <h1>Manage Categories and subcategories</h1>
-          <div className="product-list">
+            <h1>Manage Categories and subcategories</h1>
+            <div className="product-list">
               <h2>Order List</h2>
               <table>
                 <thead>
@@ -701,15 +702,15 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {userOrders.map((order) => (
+                  {userOrders.map((order) => (
                     <tr key={order._id}>
                       <td>{order._id}</td>
                       <td>{order.transactionId}</td>
                       <th>{order.items.map((item, index) => (
-                          <div key={index}>
-                            {item.medicine.name} (x{item.quantity})
-                          </div>
-                        ))}
+                        <div key={index}>
+                          {item.medicine.name} (x{item.quantity})
+                        </div>
+                      ))}
                       </th>
                       <td>{order?.shippingAddress?.address} - {order?.shippingAddress?.postalCode} {order?.shippingAddress?.city} {order?.shippingAddress?.country}</td>
                       <td>{order.totalPrice}</td>
@@ -717,32 +718,32 @@ const Dashboard = () => {
                       <td>{formatDate(order.updatedAt)}</td>
                       <td>{order.status}</td>
                       <td><select
-                            placeholder={order?.pharmacy?.shopName || "Select any pharmacy"}
-                            value={order?.pharmacy?.shopName || selectedPharmacies[order._id] || ""}
-                            onChange={(e) =>
-                              setSelectedPharmacies((prev) => ({
-                                ...prev,
-                                [order._id]: e.target.value,
-                              }))
-                            }
-                          >
-                            <option value="">{order?.pharmacy?.shopName || "Select any pharmacy"}</option>
-                            {allPharmacies.map((pharmacy) => (
-                              <option key={pharmacy._id} value={pharmacy._id}>
-                                {pharmacy.shopName}
-                              </option>
-                            ))}
-                          </select>
+                        placeholder={order?.pharmacy?.shopName || "Select any pharmacy"}
+                        value={order?.pharmacy?.shopName || selectedPharmacies[order._id] || ""}
+                        onChange={(e) =>
+                          setSelectedPharmacies((prev) => ({
+                            ...prev,
+                            [order._id]: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">{order?.pharmacy?.shopName || "Select any pharmacy"}</option>
+                        {allPharmacies.map((pharmacy) => (
+                          <option key={pharmacy._id} value={pharmacy._id}>
+                            {pharmacy.shopName}
+                          </option>
+                        ))}
+                      </select>
                       </td>
                       <td>
                         <button onClick={handleAddPharmacy}>Save</button>
                       </td>
                     </tr>
-                ))}
+                  ))}
                 </tbody>
               </table>
             </div>
-        </div>
+          </div>
         )}
 
       </div>

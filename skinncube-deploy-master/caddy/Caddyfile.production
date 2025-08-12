@@ -1,0 +1,77 @@
+# Production Caddyfile - HTTPS with SSL, domain-based
+{$DOMAIN_NAME:skinncube.com} {
+    encode gzip
+    reverse_proxy frontend:80
+    
+    # Security Headers
+    header {
+        -X-Powered-By
+        -Server
+        
+        # HSTS
+        Strict-Transport-Security max-age=31536000;
+        
+        # Content Security
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        
+        # CORS Headers
+        Access-Control-Allow-Origin https://{$DOMAIN_NAME:skinncube.com}
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+    
+    # Rate limiting
+    rate_limit {
+        zone static {
+            key {remote_host}
+            events 100
+            window 1m
+        }
+    }
+    
+    # SSL Configuration
+    tls {
+        email admin@{$DOMAIN_NAME:skinncube.com}
+    }
+}
+
+# WWW redirect
+www.{$DOMAIN_NAME:skinncube.com} {
+    redir https://{$DOMAIN_NAME:skinncube.com}{uri} permanent
+}
+
+# API subdomain
+api.{$DOMAIN_NAME:skinncube.com} {
+    reverse_proxy backend:8000
+    
+    # Security Headers
+    header {
+        -X-Powered-By
+        -Server
+        Strict-Transport-Security max-age=31536000;
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        
+        # API CORS
+        Access-Control-Allow-Origin https://{$DOMAIN_NAME:skinncube.com}
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+    
+    # Rate limiting for API
+    rate_limit {
+        zone api {
+            key {remote_host}
+            events 300
+            window 1m
+        }
+    }
+    
+    # SSL Configuration
+    tls {
+        email admin@{$DOMAIN_NAME:skinncube.com}
+    }
+}

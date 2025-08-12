@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      target: production
+      args:
+        - NODE_ENV=production
+        - REACT_APP_DOMAIN=${DOMAIN_NAME:-skinncube.com}
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_DOMAIN=${DOMAIN_NAME:-skinncube.com}
+    ports: []
+    volumes: []
+
+  caddy:
+    volumes:
+      - ./caddy/Caddyfile.production:/etc/caddy/Caddyfile
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME:-skinncube.com}
