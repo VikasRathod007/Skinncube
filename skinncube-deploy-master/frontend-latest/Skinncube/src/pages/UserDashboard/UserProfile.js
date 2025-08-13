@@ -3,7 +3,7 @@ import "./UserProfile.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Orders from "./Orders";
 import { toast } from "react-toastify";
-import { checkAuthAsync, selectUserInfo } from "../Account/authHandle/authSlice";
+import { checkAuthAsync, selectUserInfo, logoutUserAsync } from "../Account/authHandle/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ClipLoader } from "react-spinners";
 import { fetchOrders } from "../../services/orderService";
@@ -82,6 +82,17 @@ const UserProfile = () => {
   const [deliveredCount, setDeliveredCount] = useState(0);
   const [otherCount, setOtherCount] = useState(0);
 
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUserAsync());
+      toast.success("Logged out successfully!");
+      navigate("/signin");
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout error:", error);
+    }
+  };
+
   const getQueryParams = (queryString) => {
     const params = new URLSearchParams(queryString);
     return Object.fromEntries(params.entries());
@@ -113,38 +124,38 @@ const UserProfile = () => {
   };
 
   const fetchUserOrders = async () => {
-      try {
-        const response = await fetchOrders();
-        setOrders(response.data);
-        countOrders(response.data);
-      } catch (error) {
-        console.error("Failed to fetch orders:", error.message);
-      }
-    };
-  
-    useEffect(() => {
-      fetchUserOrders();
-    }, []);
-
-    if (loading) {
-      return (
-        <div className="flex justify-center items-center h-screen">
-          <ClipLoader color="#36D7B7" size={50} />
-        </div>
-      );
+    try {
+      const response = await fetchOrders();
+      setOrders(response.data);
+      countOrders(response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error.message);
     }
+  };
+
+  useEffect(() => {
+    fetchUserOrders();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader color="#36D7B7" size={50} />
+      </div>
+    );
+  }
 
   const renderSection = () => {
     switch (selectedSection) {
       case "Dashboard":
         return (
           <section className="dashboard-summary">
-            <h1>Welcome, {userInfo.name} 👋</h1>
+            <h1>Welcome, {userInfo?.name || 'User'} 👋</h1>
             <p className="dashboard-intro">Manage your pharmacy orders, addresses, and account details here.</p>
             <div className="dashboard-stats">
               <div className="card">
                 <p>Total Orders</p>
-                <h2>{deliveredCount+otherCount}</h2>
+                <h2>{deliveredCount + otherCount}</h2>
               </div>
               <div className="card">
                 <p>Delivered</p>
@@ -172,43 +183,43 @@ const UserProfile = () => {
                     <input
                       type="text"
                       value={user.address.billing.addressLine1}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, addressLine1: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, addressLine1: e.target.value } } })}
                       placeholder="Address Line 1"
                     />
                     <input
                       type="text"
                       value={user.address.billing.addressLine2}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, addressLine2: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, addressLine2: e.target.value } } })}
                       placeholder="Address Line 2"
                     />
                     <input
                       type="text"
                       value={user.address.billing.landmark}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, landmark: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, landmark: e.target.value } } })}
                       placeholder="Landmark"
                     />
                     <input
                       type="text"
                       value={user.address.billing.city}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, city: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, city: e.target.value } } })}
                       placeholder="City"
                     />
                     <input
                       type="text"
                       value={user.address.billing.state}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, state: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, state: e.target.value } } })}
                       placeholder="State"
                     />
                     <input
                       type="text"
                       value={user.address.billing.zip}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, zip: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, zip: e.target.value } } })}
                       placeholder="Zip Code"
                     />
                     <input
                       type="text"
                       value={user.address.billing.country}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, country: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, billing: { ...user.address.billing, country: e.target.value } } })}
                       placeholder="Country"
                     />
                     <button
@@ -244,43 +255,43 @@ const UserProfile = () => {
                     <input
                       type="text"
                       value={user.address.shipping.addressLine1}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, addressLine1: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, addressLine1: e.target.value } } })}
                       placeholder="Address Line 1"
                     />
                     <input
                       type="text"
                       value={user.address.shipping.addressLine2}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, addressLine2: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, addressLine2: e.target.value } } })}
                       placeholder="Address Line 2"
                     />
                     <input
                       type="text"
                       value={user.address.shipping.landmark}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, landmark: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, landmark: e.target.value } } })}
                       placeholder="Landmark"
                     />
                     <input
                       type="text"
                       value={user.address.shipping.city}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, city: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, city: e.target.value } } })}
                       placeholder="City"
                     />
                     <input
                       type="text"
                       value={user.address.shipping.state}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, state: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, state: e.target.value } } })}
                       placeholder="State"
                     />
                     <input
                       type="text"
                       value={user.address.shipping.zip}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, zip: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, zip: e.target.value } } })}
                       placeholder="Zip Code"
                     />
                     <input
                       type="text"
                       value={user.address.shipping.country}
-                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, country: e.target.value }}})}
+                      onChange={(e) => setUser({ ...user, address: { ...user.address, shipping: { ...user.address.shipping, country: e.target.value } } })}
                       placeholder="Country"
                     />
                     <button
@@ -414,7 +425,13 @@ const UserProfile = () => {
           >
             Account Details
           </li>
-          <li onClick={() => alert("Logging Out")}><Link to="/">Logout</Link></li>
+          <li
+            className="logout-item"
+            onClick={handleLogout}
+            style={{ cursor: 'pointer' }}
+          >
+            Logout
+          </li>
         </ul>
       </aside>
       <main className="main-content">{renderSection()}</main>
