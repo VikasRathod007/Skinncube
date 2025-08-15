@@ -71,7 +71,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const emailTemplate = getVerifyEmailTemplate(verificationUrl);
     const msg = {
         to: email, // recipient
-        from: 'no-reply@skinncube.com',
+        from: 'vikeyrathod007@gmail.com',
         subject: emailTemplate.subject,
         text: emailTemplate.text,
         html: emailTemplate.html,
@@ -81,24 +81,40 @@ const registerUser = asyncHandler(async (req, res) => {
         // console.log(msg);
 
         await sgMail.send(msg);
+
+        const createdUser = await User.findById(user._id).select(
+            "-password -refreshToken"
+        )
+
+        if (!createdUser) {
+            return res.status(500).json(
+                new ApiResponse(500, null, "Something went wrong while registering the user")
+            );
+        }
+
+        return res.status(201).json(
+            new ApiResponse(200, createdUser, "User registered Successfully!! Please check your mail to verify yourself")
+        );
     } catch (error) {
         console.error("Error sending email:", error);
-        res.status(500).json({
-            message: "Error sending verification email, please try again later."
-        });
+        console.error("SendGrid error details:", error.response?.body || error.message);
+
+        // User was created successfully, but email verification failed
+        // Still return success but inform about email issue
+        const createdUser = await User.findById(user._id).select(
+            "-password -refreshToken"
+        )
+
+        if (!createdUser) {
+            return res.status(500).json(
+                new ApiResponse(500, null, "Something went wrong while registering the user")
+            );
+        }
+
+        return res.status(201).json(
+            new ApiResponse(200, createdUser, "User registered successfully! However, verification email could not be sent. Please contact support to verify your account manually.")
+        );
     }
-
-    const createdUser = await User.findById(user._id).select(
-        "-password -refreshToken"
-    )
-
-    if (!createdUser) {
-        throw new ApiError(500, "Something went wrong while registering the user")
-    }
-
-    return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered Successfully!! Please check your mail to verify yourself")
-    )
 })
 
 
@@ -115,6 +131,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
     if (!user) {
         const error = new ApiError(400, "User does not exists with the provided email")
+        return res.status(error.statusCode).json(error.formatResponse());
+    }
+
+    // Check if user's email is verified
+    if (!user.isActive) {
+        const error = new ApiError(400, "Please verify your email before logging in. Check your inbox for verification email.")
         return res.status(error.statusCode).json(error.formatResponse());
     }
 
