@@ -336,6 +336,7 @@ const Dashboard = () => {
           <li onClick={() => setActiveSection("manageProducts")}>Manage Products</li>
           <li onClick={() => setActiveSection("manageCateogy")}>Manage Categories and Sub Categories</li>
           <li onClick={() => setActiveSection("manageOrders")}>Manage Orders</li>
+          <li onClick={() => navigate("/dashboard/blog")}>Manage Blog</li>
           <li onClick={logout}>Logout</li>
         </ul>
       </div>

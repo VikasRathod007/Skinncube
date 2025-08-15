@@ -11,16 +11,16 @@ const app = express()
 
 // Enable CORS
 app.use(cors({
-    origin: `${process.env.FRONT_END}`,
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cache-Control",
-      "Expires",
-      "Pragma",
-    ],
-    credentials: true,
-  }));
+  origin: `${process.env.FRONT_END}`,
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Cache-Control",
+    "Expires",
+    "Pragma",
+  ],
+  credentials: true,
+}));
 app.use(morgan("dev"))
 // app.use(cors({
 //     origin: process.env.CORS_ORIGIN,
@@ -34,8 +34,8 @@ const __dirname = path.dirname(__filename);
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 // end
 
-app.use(express.json({limit: "2mb"}))
-app.use(express.urlencoded({extended: true, limit: "2mb"}))
+app.use(express.json({ limit: "2mb" }))
+app.use(express.urlencoded({ extended: true, limit: "2mb" }))
 app.use(express.static("public"))
 app.use(cookieParser())
 
@@ -48,6 +48,7 @@ import labelRouter from './routes/labels.routes.js'
 import medicineRouter from './routes/medicine.routes.js'
 import cartRouter from './routes/cart.routes.js'
 import orderRouter from './routes/order.routes.js'
+import blogRouter from './routes/blog.routes.js'
 // routes declaration
 
 // User
@@ -73,6 +74,9 @@ app.use("/api/v1/cart", cartRouter)
 
 // Order
 app.use("/api/v1/order", orderRouter)
+
+// Blog
+app.use("/api/v1/blog", blogRouter)
 
 
 export { app }
