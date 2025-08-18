@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    getAllBlogs,
+    getAllBlogsAdmin,
     createBlog,
     updateBlog,
     deleteBlog,
@@ -18,8 +18,14 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { getAssetUrl } from "../../utils/apiUtils";
+import { useDispatch, useSelector } from "react-redux";
+import { checkAuthAsync, selectUserInfo } from "../Account/authHandle/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const BlogManagement = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const userInfo = useSelector(selectUserInfo);
     const [blogs, setBlogs] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -44,9 +50,40 @@ const BlogManagement = () => {
     const [statusFilter, setStatusFilter] = useState("");
 
     useEffect(() => {
-        fetchBlogs();
-        fetchCategories();
-    }, [currentPage, statusFilter]);
+        const checkAuth = async () => {
+            const result = await dispatch(checkAuthAsync());
+            console.log("🔍 BlogManagement - Auth check result:", result);
+
+            if (result?.payload?.status === 401) {
+                console.log("❌ BlogManagement - User not authenticated, redirecting to signin");
+                toast.error("You must be logged in to access this page");
+                navigate("/signin");
+                return;
+            }
+
+            const user = result?.payload?.user || result?.payload?.data?.user;
+            console.log("👤 BlogManagement - User info:", {
+                email: user?.email,
+                role: user?.role,
+                _id: user?._id
+            });
+
+            const role = String(user?.role || '').toUpperCase();
+            if (role === "USER") {
+                console.log("❌ BlogManagement - User role is USER, admin required. Redirecting to home");
+                toast.error("Admin Privilege Required")
+                navigate("/")
+            } else if (role === "ADMIN" || role === "SUPERADMIN") {
+                console.log("✅ BlogManagement - Admin access granted for role:", role);
+                fetchBlogs();
+                fetchCategories();
+            } else {
+                console.log("⚠️ BlogManagement - Unknown role:", role, "- redirecting to home");
+                navigate("/")
+            }
+        };
+        checkAuth();
+    }, [dispatch, navigate]);
 
     const fetchBlogs = async () => {
         try {
@@ -57,7 +94,7 @@ const BlogManagement = () => {
                 ...(statusFilter && { status: statusFilter }),
             };
 
-            const response = await getAllBlogs(params);
+            const response = await getAllBlogsAdmin(params);
             setBlogs(response.data.blogs);
             setPagination(response.data.pagination);
         } catch (error) {
@@ -274,10 +311,10 @@ const BlogManagement = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span
                                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${blog.status === 'published'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : blog.status === 'draft'
-                                                            ? 'bg-yellow-100 text-yellow-800'
-                                                            : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : blog.status === 'draft'
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-gray-100 text-gray-800'
                                                     }`}
                                             >
                                                 {blog.status}
@@ -294,8 +331,8 @@ const BlogManagement = () => {
                                                 <button
                                                     onClick={() => handleStatusToggle(blog._id, blog.status)}
                                                     className={`p-2 rounded-lg transition-colors ${blog.status === 'published'
-                                                            ? 'text-yellow-600 hover:bg-yellow-100'
-                                                            : 'text-green-600 hover:bg-green-100'
+                                                        ? 'text-yellow-600 hover:bg-yellow-100'
+                                                        : 'text-green-600 hover:bg-green-100'
                                                         }`}
                                                     title={blog.status === 'published' ? 'Unpublish' : 'Publish'}
                                                 >

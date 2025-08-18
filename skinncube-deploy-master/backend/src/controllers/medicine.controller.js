@@ -45,7 +45,7 @@ const getAllMedicines = asyncHandler(async (req, res) => {
     const totalCount = await Medicine.countDocuments(filter);
 
     return res.status(200).json(
-        new ApiResponse(200, medicines, "Medicines fetched successfully",{
+        new ApiResponse(200, medicines, "Medicines fetched successfully", {
             totalPages: Math.ceil(totalCount / limit),
             currentPage: parseInt(page),
             totalCount
@@ -75,10 +75,10 @@ const createMedicine = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All mandatory fields (name, price, quantity) are required")
     }
 
-    
+
     const loggeduser = req.user
     // optional check, if user is SA or not
-    if(loggeduser.role !== "superadmin"){
+    if (String(loggeduser.role || '').toUpperCase() !== "SUPERADMIN") {
         throw new ApiError(403, "Admin Role required")
     }
     // check if category and subcategory exists
@@ -91,7 +91,7 @@ const createMedicine = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Category not found");
     }
     // console.log("*****************");
-    
+
     // console.log(req.files.images)
     // Code for multiple image upload
     // let imagesArray = [];
@@ -104,7 +104,7 @@ const createMedicine = asyncHandler(async (req, res) => {
     // }
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    
+
     const imageLocalPath = req.files?.images?.[0]?.path || process.env.DEFAULT_IMAGE_PATH;
     if (!fs.existsSync(imageLocalPath)) {
         throw new ApiError(500, "Default image file not found");
@@ -130,7 +130,7 @@ const createMedicine = asyncHandler(async (req, res) => {
         prescriptionRequired: prescriptionRequired || false
     });
 
-    if(!medicine){
+    if (!medicine) {
         throw new ApiError(500, "Something went wrong while adding the medicine")
     }
 
@@ -143,7 +143,7 @@ const createMedicine = asyncHandler(async (req, res) => {
 const deleteMedicineById = asyncHandler(async (req, res) => {
     const { id } = req.params;
     // console.log(id);
-    
+
     const medicine = await Medicine.findByIdAndDelete(id);
     if (!medicine) {
         throw new ApiError(404, "Medicine not found");
@@ -156,24 +156,24 @@ const deleteMedicineById = asyncHandler(async (req, res) => {
 
 const updateMedicineById = async (req, res) => {
     try {
-      const { id } = req.params;
-      const updateData = req.body;
-  
-      console.log(`Received update request for medicine ID: ${id}`);
-      console.log('Update data:', updateData);
-  
-      const updatedMedicine = await Medicine.findByIdAndUpdate(id, updateData, { new: true });
-  
-      if (!updatedMedicine) {
-        return res.status(404).json({ message: 'Medicine not found' });
-      }
-  
-      res.status(204).json(updatedMedicine);
+        const { id } = req.params;
+        const updateData = req.body;
+
+        console.log(`Received update request for medicine ID: ${id}`);
+        console.log('Update data:', updateData);
+
+        const updatedMedicine = await Medicine.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!updatedMedicine) {
+            return res.status(404).json({ message: 'Medicine not found' });
+        }
+
+        res.status(204).json(updatedMedicine);
     } catch (error) {
-      console.error('Error updating medicine:', error);
-      res.status(500).json({ message: 'An error occurred while updating the medicine' });
+        console.error('Error updating medicine:', error);
+        res.status(500).json({ message: 'An error occurred while updating the medicine' });
     }
-  };
+};
 
 
 export {

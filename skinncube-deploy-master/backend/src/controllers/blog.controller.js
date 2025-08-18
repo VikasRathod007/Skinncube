@@ -154,7 +154,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
     const filter = {};
 
     // Only show published blogs for public access
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
+    if (req.user && (String(req.user.role || '').toUpperCase() === 'ADMIN' || String(req.user.role || '').toUpperCase() === 'SUPERADMIN')) {
         // Admin can see all statuses
         if (status) filter.status = status;
     } else {
@@ -206,7 +206,7 @@ const getBlogBySlug = asyncHandler(async (req, res) => {
     }
 
     // Only allow access to published blogs for non-admin users
-    if (blog.status !== 'published' && (!req.user || (req.user.role !== 'admin' && req.user.role !== 'superadmin'))) {
+    if (blog.status !== 'published' && (!req.user || (String(req.user.role || '').toUpperCase() !== 'ADMIN' && String(req.user.role || '').toUpperCase() !== 'SUPERADMIN'))) {
         throw new ApiError(404, "Blog not found");
     }
 

@@ -9,7 +9,7 @@ import { addCategories, deleteCategory, fetchCategories } from "../../services/c
 import { fetchSubCategories, addSubCategory, deleteSubCategory } from "../../services/subcategoryService";
 import { fetchMedicines, deleteMedicineById } from "../../services/medicineService";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuthAsync } from "../Account/authHandle/authSlice";
+import { checkAuthAsync, selectUserInfo } from "../Account/authHandle/authSlice";
 import { addPharmacyService, fetchOrders } from "../../services/orderService";
 import { fetchPharmacy } from "../../services/pharmacyService";
 import { getAssetUrl } from "../../utils/apiUtils"
@@ -18,6 +18,8 @@ const prescription_required_string = ["true", "false"];
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userInfo = useSelector(selectUserInfo);
   const [activeSection, setActiveSection] = useState("home"); // Track which section is active
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
@@ -39,7 +41,6 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [subCategoryNameAdd, setSubCategoryNameAdd] = useState("");
   const [selectedCategoryforSubcategory, setSelectedCategoryforSubcategory] = useState("");
-  const dispatch = useDispatch();
   const [userOrders, setUserOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedPharmacies, setSelectedPharmacies] = useState({});
@@ -48,17 +49,32 @@ const Dashboard = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const result = await dispatch(checkAuthAsync());
-      // Check if the payload has a status 401 indicating unauthorized access
-      console.log(result);
+      console.log("🔍 Dashboard - Auth check result:", result);
 
       if (result?.payload?.status === 401) {
+        console.log("❌ Dashboard - User not authenticated, redirecting to signin");
         toast.error("You must be logged in to access this page");
         navigate("/signin");
+        return;
       }
 
-      if (result?.payload?.user.role === "user") {
+      const user = result?.payload?.user || result?.payload?.data?.user;
+      console.log("👤 Dashboard - User info:", {
+        email: user?.email,
+        role: user?.role,
+        _id: user?._id,
+        fullUser: user
+      });
+
+      const role = String(user?.role || '').toUpperCase();
+      if (role === "USER") {
+        console.log("❌ Dashboard - User role is USER, admin required. Redirecting to home");
         toast.error("Admin Privilege Required")
         navigate("/")
+      } else if (role === "ADMIN" || role === "SUPERADMIN") {
+        console.log("✅ Dashboard - Admin access granted for role:", role);
+      } else {
+        console.log("⚠️ Dashboard - Unknown role:", role, "- allowing access but this should be checked");
       }
     };
     checkAuth();

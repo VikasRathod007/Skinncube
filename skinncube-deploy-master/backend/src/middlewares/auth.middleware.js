@@ -59,8 +59,9 @@ export const isSA = asyncHandler(async (req, _, next) => {
         throw new ApiError(401, "Invalid Access Token")
     }
 
-    if (loggeduser.role !== "superadmin") {
-        throw new ApiError(403, "Admin Role required")
+    const role = String(loggeduser.role || '').toUpperCase();
+    if (role !== "SUPERADMIN") {
+        throw new ApiError(403, "SuperAdmin Role required")
     }
     next()
 
@@ -73,7 +74,8 @@ export const isAdmin = asyncHandler(async (req, _, next) => {
         throw new ApiError(401, "Invalid Access Token")
     }
 
-    if (loggeduser.role !== "admin" && loggeduser.role !== "superadmin") {
+    const role = String(loggeduser.role || '').toUpperCase();
+    if (role !== "ADMIN" && role !== "SUPERADMIN") {
         throw new ApiError(403, "Admin Role required")
     }
     next()
