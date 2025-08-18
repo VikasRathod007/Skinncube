@@ -9,7 +9,7 @@ import { addCategories, deleteCategory, fetchCategories } from "../../services/c
 import { fetchSubCategories, addSubCategory, deleteSubCategory } from "../../services/subcategoryService";
 import { fetchMedicines, deleteMedicineById } from "../../services/medicineService";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuthAsync, selectUserInfo } from "../Account/authHandle/authSlice";
+import { checkAuthAsync, selectUserInfo, logoutUserAsync } from "../Account/authHandle/authSlice";
 import { addPharmacyService, fetchOrders } from "../../services/orderService";
 import { fetchPharmacy } from "../../services/pharmacyService";
 import { getAssetUrl } from "../../utils/apiUtils"
@@ -338,8 +338,15 @@ const Dashboard = () => {
     }
   };
 
-  const logout = () => {
-    navigate("/"); // Redirect to home page
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUserAsync());
+      toast.success("Logged out successfully!");
+      navigate("/signin");
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -353,7 +360,7 @@ const Dashboard = () => {
           <li onClick={() => setActiveSection("manageCateogy")}>Manage Categories and Sub Categories</li>
           <li onClick={() => setActiveSection("manageOrders")}>Manage Orders</li>
           <li onClick={() => navigate("/dashboard/blog")}>Manage Blog</li>
-          <li onClick={logout}>Logout</li>
+          <li onClick={handleLogout}>Logout</li>
         </ul>
       </div>
 
