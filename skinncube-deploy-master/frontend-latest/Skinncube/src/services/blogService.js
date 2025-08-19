@@ -70,14 +70,21 @@ export const createBlog = async (blogData) => {
         Object.keys(blogData).forEach(key => {
             if (key === 'tags' && Array.isArray(blogData[key])) {
                 blogData[key].forEach(tag => formData.append('tags', tag));
-            } else if (key !== 'featuredImage') {
+            } else if (key !== 'featuredImage' && key !== 'images') {
                 formData.append(key, blogData[key]);
             }
         });
 
-        // Append file if exists
+        // Append featured image
         if (blogData.featuredImage) {
             formData.append('featuredImage', blogData.featuredImage);
+        }
+
+        // Append inline images
+        if (Array.isArray(blogData.images)) {
+            blogData.images.forEach((img) => {
+                if (img) formData.append('images', img);
+            });
         }
 
         const response = await axios.post(
@@ -103,14 +110,21 @@ export const updateBlog = async (blogId, blogData) => {
         Object.keys(blogData).forEach(key => {
             if (key === 'tags' && Array.isArray(blogData[key])) {
                 blogData[key].forEach(tag => formData.append('tags', tag));
-            } else if (key !== 'featuredImage') {
+            } else if (key !== 'featuredImage' && key !== 'images') {
                 formData.append(key, blogData[key]);
             }
         });
 
-        // Append file if exists
+        // Append featured image if new one selected (File)
         if (blogData.featuredImage && typeof blogData.featuredImage !== 'string') {
             formData.append('featuredImage', blogData.featuredImage);
+        }
+
+        // Append new inline images
+        if (Array.isArray(blogData.images)) {
+            blogData.images.forEach((img) => {
+                if (img && typeof img !== 'string') formData.append('images', img);
+            });
         }
 
         const response = await axios.put(

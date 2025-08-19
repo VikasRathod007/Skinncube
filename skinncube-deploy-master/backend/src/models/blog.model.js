@@ -27,6 +27,9 @@ const blogSchema = new Schema({
         type: String,
         required: true
     },
+    images: [{
+        type: String
+    }],
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -61,16 +64,6 @@ const blogSchema = new Schema({
     readTime: {
         type: Number, // in minutes
         default: 5
-    },
-    seoTitle: {
-        type: String,
-        trim: true,
-        maxlength: 60
-    },
-    seoDescription: {
-        type: String,
-        trim: true,
-        maxlength: 160
     }
 }, {
     timestamps: true

@@ -40,9 +40,8 @@ const BlogManagement = () => {
         excerpt: "",
         category: "health",
         tags: "",
-        seoTitle: "",
-        seoDescription: "",
-        featuredImage: null
+        featuredImage: null,
+        images: [] // new inline images
     });
 
     // Filters
@@ -114,6 +113,11 @@ const BlogManagement = () => {
         }
     };
 
+    const handleInlineImagesChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        setFormData(prev => ({ ...prev, images: files }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -178,9 +182,8 @@ const BlogManagement = () => {
             excerpt: "",
             category: "health",
             tags: "",
-            seoTitle: "",
-            seoDescription: "",
-            featuredImage: null
+            featuredImage: null,
+            images: []
         });
         setEditingBlog(null);
     };
@@ -193,9 +196,8 @@ const BlogManagement = () => {
             excerpt: blog.excerpt,
             category: blog.category,
             tags: blog.tags.join(", "),
-            seoTitle: blog.seoTitle || "",
-            seoDescription: blog.seoDescription || "",
-            featuredImage: null
+            featuredImage: null,
+            images: []
         });
         setShowModal(true);
     };
@@ -455,10 +457,11 @@ const BlogManagement = () => {
                                     </label>
                                     <textarea
                                         value={formData.excerpt}
-                                        onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                                        onChange={(e) => setFormData({ ...formData, excerpt: e.target.value.slice(0, 500) })}
                                         rows={3}
+                                        maxLength={500}
                                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primeColor"
-                                        placeholder="Brief description of the article..."
+                                        placeholder="Brief description of the article (max 500 chars)..."
                                         required
                                     />
                                 </div>
@@ -498,6 +501,26 @@ const BlogManagement = () => {
                                     </div>
                                 </div>
 
+                                {/* Inline Images */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Inline Images (optional)
+                                    </label>
+                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                        <FaImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleInlineImagesChange}
+                                            className="w-full"
+                                        />
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            You can upload multiple images to embed within the content
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Tags */}
                                     <div>
@@ -512,34 +535,6 @@ const BlogManagement = () => {
                                             placeholder="health, wellness, skincare (comma separated)"
                                         />
                                     </div>
-
-                                    {/* SEO Title */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            SEO Title
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.seoTitle}
-                                            onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primeColor"
-                                            placeholder="SEO optimized title"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* SEO Description */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        SEO Description
-                                    </label>
-                                    <textarea
-                                        value={formData.seoDescription}
-                                        onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
-                                        rows={2}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primeColor"
-                                        placeholder="SEO description for search engines"
-                                    />
                                 </div>
 
                                 {/* Submit Buttons */}

@@ -25,8 +25,24 @@ router.route("/slug/:slug").get(getBlogBySlug);
 router.route("/:id/like").post(verifyJWT, toggleBlogLike);
 
 // Admin only routes
-router.route("/create").post(verifyJWT, isAdmin, upload.single("featuredImage"), createBlog);
-router.route("/:id").put(verifyJWT, isAdmin, upload.single("featuredImage"), updateBlog);
+router.route("/create").post(
+    verifyJWT,
+    isAdmin,
+    upload.fields([
+        { name: "featuredImage", maxCount: 1 },
+        { name: "images", maxCount: 10 }
+    ]),
+    createBlog
+);
+router.route("/:id").put(
+    verifyJWT,
+    isAdmin,
+    upload.fields([
+        { name: "featuredImage", maxCount: 1 },
+        { name: "images", maxCount: 10 }
+    ]),
+    updateBlog
+);
 router.route("/:id/status").patch(verifyJWT, isAdmin, toggleBlogStatus);
 router.route("/:id").delete(verifyJWT, isAdmin, deleteBlog);
 

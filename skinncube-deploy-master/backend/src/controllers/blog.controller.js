@@ -3,14 +3,37 @@ import { Blog } from "../models/blog.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+const toArrayOfTags = (tags) => {
+    if (Array.isArray(tags)) return tags.filter(Boolean).map(t => String(t).trim()).filter(Boolean);
+    if (typeof tags === 'string') return tags.split(',').map(t => t.trim()).filter(Boolean);
+    return [];
+};
+
+const sanitizeExcerpt = (excerpt) => {
+    const text = String(excerpt || '')
+        .replace(/<[^>]*>/g, ' ') // strip HTML tags if any
+        .replace(/\s+/g, ' ') // collapse whitespace
+        .trim();
+    return text.length > 500 ? text.slice(0, 500) : text;
+};
+
 // Create a new blog (Admin only)
 const createBlog = asyncHandler(async (req, res) => {
-    const { title, content, excerpt, featuredImage, category, tags, seoTitle, seoDescription } = req.body;
+    const { title, content, excerpt, category, tags } = req.body;
     const authorId = req.user._id;
+
+    // Resolve images from multer
+    const featuredImagePath = req.files?.featuredImage?.[0]?.path ? req.files.featuredImage[0].path.replace(/^\.\//, '') : null;
+    const inlineImages = (req.files?.images || []).map(f => f.path.replace(/^\.\//, ''));
+
+    const featuredImage = featuredImagePath || req.body.featuredImage;
 
     if (!title || !content || !excerpt || !featuredImage) {
         throw new ApiError(400, "Title, content, excerpt, and featured image are required");
     }
+
+    const cleanedExcerpt = sanitizeExcerpt(excerpt);
+    const normalizedTags = toArrayOfTags(tags);
 
     // Generate slug from title
     const slug = title
@@ -27,21 +50,20 @@ const createBlog = asyncHandler(async (req, res) => {
     }
 
     // Calculate read time (assuming 200 words per minute)
-    const wordCount = content.split(' ').length;
+    const wordCount = String(content || '').replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length;
     const readTime = Math.ceil(wordCount / 200);
 
     const blog = await Blog.create({
         title,
         slug,
         content,
-        excerpt,
+        excerpt: cleanedExcerpt,
         featuredImage,
+        images: inlineImages,
         author: authorId,
         category: category || 'health',
-        tags: tags || [],
-        readTime,
-        seoTitle: seoTitle || title,
-        seoDescription: seoDescription || excerpt
+        tags: normalizedTags,
+        readTime
     });
 
     const createdBlog = await Blog.findById(blog._id).populate('author', 'name email');
@@ -54,7 +76,7 @@ const createBlog = asyncHandler(async (req, res) => {
 // Update a blog (Admin only)
 const updateBlog = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { title, content, excerpt, featuredImage, category, tags, seoTitle, seoDescription } = req.body;
+    const { title, content, excerpt, category, tags } = req.body;
 
     const blog = await Blog.findById(id);
     if (!blog) {
@@ -75,16 +97,30 @@ const updateBlog = asyncHandler(async (req, res) => {
     if (content) {
         blog.content = content;
         // Recalculate read time
-        const wordCount = content.split(' ').length;
+        const wordCount = String(content || '').replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length;
         blog.readTime = Math.ceil(wordCount / 200);
     }
 
-    if (excerpt) blog.excerpt = excerpt;
-    if (featuredImage) blog.featuredImage = featuredImage;
+    if (typeof excerpt !== 'undefined') {
+        blog.excerpt = sanitizeExcerpt(excerpt);
+    }
+
+    // Handle featured image and inline images
+    const featuredImagePath = req.files?.featuredImage?.[0]?.path ? req.files.featuredImage[0].path.replace(/^\.\//, '') : null;
+    if (featuredImagePath) {
+        blog.featuredImage = featuredImagePath;
+    } else if (req.body.featuredImage) {
+        blog.featuredImage = req.body.featuredImage;
+    }
+
+    const inlineImages = (req.files?.images || []).map(f => f.path.replace(/^\.\//, ''));
+    if (inlineImages.length > 0) {
+        blog.images = Array.isArray(blog.images) ? [...blog.images, ...inlineImages] : inlineImages;
+    }
+
     if (category) blog.category = category;
-    if (tags) blog.tags = tags;
-    if (seoTitle) blog.seoTitle = seoTitle;
-    if (seoDescription) blog.seoDescription = seoDescription;
+    const normalizedTags = toArrayOfTags(tags);
+    if (normalizedTags.length) blog.tags = normalizedTags;
 
     await blog.save();
 
