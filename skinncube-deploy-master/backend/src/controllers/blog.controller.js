@@ -182,7 +182,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
         limit = 10,
         category,
         search,
-        status = 'published',
+        status,
         sortBy = 'publishedAt',
         sortOrder = 'desc'
     } = req.query;

@@ -13,6 +13,19 @@ export const getAllBlogs = async (params = {}) => {
     }
 };
 
+export const getAllBlogsAdmin = async (params = {}) => {
+    try {
+        const queryParams = new URLSearchParams(params).toString();
+        const response = await axios.get(`${getApiUrl()}/api/v1/blog/admin?${queryParams}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching blogs (admin):", error);
+        throw error.response ? error.response.data : new Error("An unexpected error occurred");
+    }
+};
+
 export const getBlogBySlug = async (slug) => {
     try {
         const response = await axios.get(`${getApiUrl()}/api/v1/blog/slug/${slug}`);

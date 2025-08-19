@@ -21,6 +21,9 @@ router.route("/categories").get(getBlogCategories);
 router.route("/featured").get(getFeaturedBlogs);
 router.route("/slug/:slug").get(getBlogBySlug);
 
+// Admin listing route (protected) - allows viewing all statuses
+router.route("/admin").get(verifyJWT, isAdmin, getAllBlogs);
+
 // Protected routes (require authentication)
 router.route("/:id/like").post(verifyJWT, toggleBlogLike);
 
