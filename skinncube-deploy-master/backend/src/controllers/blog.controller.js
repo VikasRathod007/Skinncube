@@ -26,9 +26,27 @@ const createBlog = asyncHandler(async (req, res) => {
     const featuredImagePath = req.files?.featuredImage?.[0]?.path ? req.files.featuredImage[0].path.replace(/^\.\//, '') : null;
     const inlineImages = (req.files?.images || []).map(f => f.path.replace(/^\.\//, ''));
 
+    // Debug logging for image paths
+    console.log('Image paths from multer:', {
+        featuredImagePath,
+        inlineImages,
+        'req.files': req.files
+    });
+
     const featuredImage = featuredImagePath || req.body.featuredImage;
 
-    if (!title || !content || !excerpt || !featuredImage) {
+    // Ensure the path includes 'public/' prefix for frontend access
+    const normalizedFeaturedImage = featuredImage ? (featuredImage.startsWith('public/') ? featuredImage : `public/${featuredImage}`) : null;
+    const normalizedInlineImages = inlineImages.map(img => img.startsWith('public/') ? img : `public/${img}`);
+
+    console.log('Normalized image paths:', {
+        original: featuredImage,
+        normalized: normalizedFeaturedImage,
+        originalInline: inlineImages,
+        normalizedInline: normalizedInlineImages
+    });
+
+    if (!title || !content || !excerpt || !normalizedFeaturedImage) {
         throw new ApiError(400, "Title, content, excerpt, and featured image are required");
     }
 
@@ -58,8 +76,8 @@ const createBlog = asyncHandler(async (req, res) => {
         slug,
         content,
         excerpt: cleanedExcerpt,
-        featuredImage,
-        images: inlineImages,
+        featuredImage: normalizedFeaturedImage,
+        images: normalizedInlineImages,
         author: authorId,
         category: category || 'health',
         tags: normalizedTags,
@@ -108,12 +126,16 @@ const updateBlog = asyncHandler(async (req, res) => {
     // Handle featured image and inline images
     const featuredImagePath = req.files?.featuredImage?.[0]?.path ? req.files.featuredImage[0].path.replace(/^\.\//, '') : null;
     if (featuredImagePath) {
-        blog.featuredImage = featuredImagePath;
+        // Ensure the path includes 'public/' prefix for frontend access
+        blog.featuredImage = featuredImagePath.startsWith('public/') ? featuredImagePath : `public/${featuredImagePath}`;
     } else if (req.body.featuredImage) {
         blog.featuredImage = req.body.featuredImage;
     }
 
-    const inlineImages = (req.files?.images || []).map(f => f.path.replace(/^\.\//, ''));
+    const inlineImages = (req.files?.images || []).map(f => {
+        const path = f.path.replace(/^\.\//, '');
+        return path.startsWith('public/') ? path : `public/${path}`;
+    });
     if (inlineImages.length > 0) {
         blog.images = Array.isArray(blog.images) ? [...blog.images, ...inlineImages] : inlineImages;
     }

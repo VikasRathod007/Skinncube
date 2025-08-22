@@ -61,8 +61,19 @@ export const getAssetUrl = (assetPath) => {
   const domain = getDomain();
   const protocol = isDevelopment ? 'http' : 'https';
   const baseUrl = `${protocol}://${domain}`;
+  const fullUrl = `${baseUrl}/${assetPath}`;
 
-  return `${baseUrl}/${assetPath}`;
+  // Debug logging for image URLs
+  console.log('Asset URL constructed:', {
+    assetPath,
+    domain,
+    protocol,
+    isDevelopment,
+    baseUrl,
+    fullUrl
+  });
+
+  return fullUrl;
 };
 
 /**
