@@ -14,13 +14,13 @@ import { Pharmacy } from "../models/pharmacy.model.js";
 const PHONEPE_BASE_URL = process.env.PHONEPE_PAYMENT_LINK_PROD
 const MERCHANT_ID = process.env.PHONEPE_PAYMENT_MERCHANT_ID_PROD
 const PHONEPE_SALT_KEY = process.env.PHONEPE_KEY_PROD
-const MUID = "MUID"+Date.now();
+const MUID = "MUID" + Date.now();
 
-const orderInitiate = asyncHandler(async(req,res)=> {
+const orderInitiate = asyncHandler(async (req, res) => {
     try {
         const addressId = req.body.addressId;
         console.log(addressId);
-        
+
         const userId = req.user._id;
         const user = await User.findById(userId);
         const selectedAddress = user.addresses.id(addressId);
@@ -50,7 +50,7 @@ const orderInitiate = asyncHandler(async(req,res)=> {
         const sha256 = crypto.createHash("sha256").update(checksumInput).digest("hex");
         const checksum = `${sha256}###${keyIndex}`;
 
-        const prod_URL = PHONEPE_BASE_URL+"pay"
+        const prod_URL = PHONEPE_BASE_URL + "pay"
         const options = {
             method: 'POST',
             url: prod_URL,
@@ -66,12 +66,12 @@ const orderInitiate = asyncHandler(async(req,res)=> {
 
         axios.request(options).then(function (response) {
             return res.status(200).json(
-                new ApiResponse(200,{paymentUrl: response.data.data.instrumentResponse.redirectInfo.url},"Payment URL Sent")
+                new ApiResponse(200, { paymentUrl: response.data.data.instrumentResponse.redirectInfo.url }, "Payment URL Sent")
             )
         })
-        .catch(function (error) {
-            console.error(error);
-        });
+            .catch(function (error) {
+                console.error(error);
+            });
 
     } catch (error) {
         res.status(500).send({
@@ -81,11 +81,11 @@ const orderInitiate = asyncHandler(async(req,res)=> {
     }
 });
 
-const checkStatus = asyncHandler(async(req, res) => {
+const checkStatus = asyncHandler(async (req, res) => {
     // inputs variables
     const merchantTransactionId = req.body.transactionId
     const merchantId = req.body.merchantId
-    
+
     const userId = req.query.userId;
     const addressId = req.query.addressId;
 
@@ -106,7 +106,7 @@ const checkStatus = asyncHandler(async(req, res) => {
         }
     };
 
-    axios.request(options).then(async(response) => {
+    axios.request(options).then(async (response) => {
         if (response.data.code === 'PAYMENT_SUCCESS') {
             const cart = await Cart.findOne({ user: userId });
             if (!cart || cart.items.length === 0) {
@@ -115,7 +115,7 @@ const checkStatus = asyncHandler(async(req, res) => {
             const user = await User.findById(userId);
             const selectedAddress = user.addresses.id(addressId);
             if (!selectedAddress) {
-            throw new ApiError(400, "Address not found");
+                throw new ApiError(400, "Address not found");
             }
 
             const order = new Order({
@@ -135,7 +135,7 @@ const checkStatus = asyncHandler(async(req, res) => {
             const savedOrder = await order.save();
 
             console.log("Payment Successfull");
-            
+
             await updateOrderStatus(savedOrder._id, 'Payment Completed', merchantTransactionId);  // Update order status to "Processing"
             await clearcart_paymentsuccess(savedOrder._id);
             const url = `${process.env.FRONT_END}/user-profile?section=Orders`
@@ -146,12 +146,12 @@ const checkStatus = asyncHandler(async(req, res) => {
             return res.redirect(url)
         }
     })
-    .catch((error) => {
-        console.error(error);
-    });
+        .catch((error) => {
+            console.error(error);
+        });
 });
 
-const updateOrderStatus = asyncHandler( async (orderId, status, merchantTransactionId) => {
+const updateOrderStatus = asyncHandler(async (orderId, status, merchantTransactionId) => {
     try {
         // Find the order by its ID
         const order = await Order.findById(orderId);
@@ -181,7 +181,7 @@ const updateOrderStatus = asyncHandler( async (orderId, status, merchantTransact
             await medicine.save();
         }
     } catch (error) {
-        throw new ApiError(500,"Failed to update order status and medicine quantities: " + error.message);
+        throw new ApiError(500, "Failed to update order status and medicine quantities: " + error.message);
     }
 });
 
@@ -217,22 +217,22 @@ const updateOrdersAddPharmacy = asyncHandler(async (req, res) => {
     }
 });
 
-const deleteOrder = asyncHandler( async (orderId, merchantTransactionId) => {
+const deleteOrder = asyncHandler(async (orderId, merchantTransactionId) => {
     try {
         // Find the order by its ID
         const order = await Order.findByIdAndDelete(orderId);
         console.log("Deleting order id, since transaction failed");
-        
+
         if (!order) {
             throw new Error("Order not found");
         }
 
     } catch (error) {
-        throw new ApiError(500,"Failed to update order status and medicine quantities: " + error.message);
+        throw new ApiError(500, "Failed to update order status and medicine quantities: " + error.message);
     }
 });
 
-const clearcart_paymentsuccess = asyncHandler ( async (orderId) => {
+const clearcart_paymentsuccess = asyncHandler(async (orderId) => {
     try {
         const order = await Order.findById(orderId);
         const userId = order.user;
@@ -251,33 +251,33 @@ const clearcart_paymentsuccess = asyncHandler ( async (orderId) => {
     }
 });
 
-const getOrders = asyncHandler(async(req, res) => {
+const getOrders = asyncHandler(async (req, res) => {
     // inputs variables
     try {
         const userId = req.user._id;
         let orders;
         const user = req.user
         console.log(user);
-        
-        if(user.role==='superadmin'){
+
+        if (String(user.role || '').toUpperCase() === 'SUPERADMIN') {
             orders = await Order.find().populate({
                 path: "items.medicine",
                 select: "name price description",
-              }).populate({
+            }).populate({
                 path: "pharmacy",
                 select: "shopName ownerName address", // Add the fields you want from the Pharmacy schema
             }).sort({ createdAt: -1 });
         }
-        else{
+        else {
             orders = await Order.find({ user: userId }).populate({
                 path: "items.medicine",
                 select: "name price description",
-              }).sort({ createdAt: -1 });
+            }).sort({ createdAt: -1 });
         }
         if (!orders || orders.length === 0) {
             throw new ApiError(404, "No orders found for this user");
         }
-    
+
         res.status(200).json(new ApiResponse(200, orders, "Orders fetched successfully"));
     } catch (error) {
         throw new ApiError(500, "Failed to fetch item from orders", error.message);

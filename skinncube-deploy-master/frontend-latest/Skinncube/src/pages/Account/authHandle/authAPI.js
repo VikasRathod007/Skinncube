@@ -23,7 +23,7 @@ export async function loginUser(loginInfo) {
     }
 
     const data = await response.json();
-    return { data }; // This will include your user identity
+    return data; // Return raw ApiResponse
   } catch (error) {
     throw error; // Propagate the error
   }
@@ -51,7 +51,7 @@ export async function checkAuth() {
     }
 
     const data = await response.json();
-    return { data }; // This will include your user identity
+    return data; // Return raw response { success, message, user }
   } catch (error) {
     throw error; // Propagate the error
   }
@@ -79,7 +79,7 @@ export async function logoutUser() {
     }
 
     const data = await response.json();
-    return { data }; // This will include your user identity
+    return data; // Return raw ApiResponse
   } catch (error) {
     throw error; // Propagate the error
   }

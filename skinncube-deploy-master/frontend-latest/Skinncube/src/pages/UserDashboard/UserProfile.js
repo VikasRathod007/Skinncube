@@ -104,7 +104,25 @@ const UserProfile = () => {
     if (result?.payload?.status === 401) {
       toast.error("You must be logged in to access this page");
       navigate("/signin");
+      return;
     }
+
+    const user = result?.payload?.user || result?.payload?.data?.user;
+    console.log("👤 UserProfile - User info:", {
+      email: user?.email,
+      role: user?.role,
+      _id: user?._id
+    });
+
+    // Redirect admins to dashboard
+    const role = String(user?.role || '').toUpperCase();
+    if (role === "ADMIN" || role === "SUPERADMIN") {
+      console.log("🔄 UserProfile - Admin detected, redirecting to dashboard");
+      toast.info("Redirecting to admin dashboard");
+      navigate("/dashboard");
+      return;
+    }
+
     setLoading(false);
   };
 
@@ -129,18 +147,20 @@ const UserProfile = () => {
       setOrders(response.data);
       countOrders(response.data);
     } catch (error) {
-      console.error("Failed to fetch orders:", error.message);
+      console.error("Error fetching orders:", error);
     }
   };
 
   useEffect(() => {
-    fetchUserOrders();
-  }, []);
+    if (userInfo && !loading) {
+      fetchUserOrders();
+    }
+  }, [userInfo, loading]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <ClipLoader color="#36D7B7" size={50} />
+        <ClipLoader size={50} color="#007bff" />
       </div>
     );
   }
@@ -150,12 +170,12 @@ const UserProfile = () => {
       case "Dashboard":
         return (
           <section className="dashboard-summary">
-            <h1>Welcome, {userInfo?.name || 'User'} 👋</h1>
-            <p className="dashboard-intro">Manage your pharmacy orders, addresses, and account details here.</p>
+            <h1>Welcome, {userInfo?.name || "User"} 👋</h1>
+            <p>Manage your pharmacy orders, addresses, and account details here.</p>
             <div className="dashboard-stats">
               <div className="card">
                 <p>Total Orders</p>
-                <h2>{deliveredCount + otherCount}</h2>
+                <h2>{orders.length}</h2>
               </div>
               <div className="card">
                 <p>Delivered</p>

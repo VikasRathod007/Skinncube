@@ -21,6 +21,7 @@ import ProductManagement from "./pages/DashBoard/ProductManagement"; // Import t
 import ProfileManagement from "./pages/DashBoard/ProfileManagement"; // Import the ProfileManagement component
 import OrderHistory from "./pages/DashBoard/OrderHistory"; // Import the OrderHistory component
 import DeliveryStatus from "./pages/DashBoard/DeliveryStatus"; // Import the DeliveryStatus component
+import BlogManagement from "./pages/DashBoard/BlogManagement"; // Import the BlogManagement component
 import UserProfile from "./pages/UserDashboard/UserProfile"
 import Cart from "./pages/Cart/Cart";
 import Contact from "./pages/Contact/Contact";
@@ -30,6 +31,8 @@ import Offer from "./pages/Offer/Offer";
 import Payment from "./pages/payment/Payment";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
 import Shop from "./pages/Shop/Shop";
+import BlogList from "./pages/Blog/BlogList";
+import BlogDetail from "./pages/Blog/BlogDetail";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuthAsync, selectLoggedInUser, selectUserInfo } from "./pages/Account/authHandle/authSlice";
@@ -72,9 +75,12 @@ const router = createBrowserRouter(
         <Route path="/dashboard/products/manage" element={<ProductManagement />} />
         <Route path="/dashboard/orders" element={<OrderHistory />} />
         <Route path="/dashboard/delivery-status" element={<DeliveryStatus />} />
+        <Route path="/dashboard/blog" element={<BlogManagement />} />
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/dashboard" element={<Dashboard />}>
-          
-          
+
+
         </Route>
       </Route>
       <Route path="/signup" element={<SignUp />}></Route>
@@ -87,7 +93,7 @@ function App() {
   const dispatch = useDispatch();
   const user = useSelector(selectUserInfo);
   // console.log(user);
-  
+
 
 
   useEffect(() => {

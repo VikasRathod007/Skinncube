@@ -289,12 +289,12 @@ const changeUserRoleToSuperAdmin = asyncHandler(async (req, res) => {
     }
 
     // Ensure the user is not already a superadmin
-    if (user.role === 'superadmin') {
+    if (String(user.role || '').toUpperCase() === 'SUPERADMIN') {
         throw new ApiError(400, "User is already a superadmin");
     }
 
     // Change the role to superadmin
-    user.role = 'superadmin';
+    user.role = 'SUPERADMIN';
     await user.save();
 
     return res.status(200).json(

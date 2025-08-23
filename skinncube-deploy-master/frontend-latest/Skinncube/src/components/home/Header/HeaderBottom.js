@@ -57,24 +57,76 @@ const HeaderBottom = () => {
     }
   }, [showUser]);
 
-  function handleLogout(){
-    dispatch(logoutUserAsync()).then((data) => {
-      if(data?.payload?.success) {
-        toast.success(data?.payload?.message);
-        dispatch(fetchCart(null));
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUserAsync());
+      toast.success("Logged out successfully!");
+      navigate("/signin");
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout error:", error);
+    }
+  };
+
+  const handleProfileClick = () => {
+    if (user && user.role) {
+      const role = String(user.role).toUpperCase();
+      if (role === "ADMIN" || role === "SUPERADMIN") {
+        navigate("/dashboard");
+      } else {
+        navigate("/user-profile");
       }
-    });
-  }
+    } else {
+      navigate("/user-profile");
+    }
+    setShowUser(false);
+  };
 
   return (
-    <div className="w-full bg-[#F5F5F3] relative">
-      <div className="max-w-container mx-auto">
-        <Flex className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full px-4 pb-4 lg:pb-0 h-full lg:h-24">
-          <div className="flex h-14 items-center gap-2 text-primeColor">
-            <p className="text-[14px] font-normal">
-              Get Derma Consult NOW ⭐ 
-              <br />⭐ ₹125 OFF above ₹2999!
-            </p>
+    <div className="w-full h-20 bg-white border-b-[1px] border-b-gray-200 sticky top-0 z-50">
+      <div className="max-w-container mx-auto px-4">
+        <Flex className="flex items-center justify-between h-full">
+          <div className="flex items-center gap-2">
+            <div onClick={() => setShow(!show)} className="flex items-center gap-2 cursor-pointer group">
+              <HiOutlineMenuAlt4 className="text-2xl group-hover:text-primeColor duration-300" />
+              <p className="text-[14px] font-normal group-hover:text-primeColor duration-300">
+                All Categories
+              </p>
+            </div>
+            {show && (
+              <motion.ul
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="absolute top-14 left-0 z-50 bg-primeColor w-auto h-auto p-4"
+              >
+                <Link to="/shop">
+                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                    Shop
+                  </li>
+                </Link>
+                <Link to="/about">
+                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                    About
+                  </li>
+                </Link>
+                <Link to="/contact">
+                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                    Contact
+                  </li>
+                </Link>
+                <Link to="/consult">
+                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                    Consult
+                  </li>
+                </Link>
+                <Link to="/blog">
+                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                    Blog
+                  </li>
+                </Link>
+              </motion.ul>
+            )}
           </div>
           <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
             <input
@@ -129,32 +181,32 @@ const HeaderBottom = () => {
                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                     Login
                   </li>
-                  </Link><Link onClick={() => setShowUser(false)} to="/signup">
+                </Link><Link onClick={() => setShowUser(false)} to="/signup">
                     <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                       Sign Up
                     </li>
                   </Link></>)
-                  }
-                  {user && user.role !== "user" &&(<>
-                    <Link onClick={() => setShowUser(false)} to="/dashboard">
-                      <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                }
+                {user && String(user.role || '').toUpperCase() !== "USER" && (<>
+                  <Link onClick={() => setShowUser(false)} to="/dashboard">
+                    <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                       Dashboard
-                      </li>
-                    </Link>
-                  </>)}
-                  
-
-                {user &&(<>
-                  <Link to="/user-profile">
-                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                    Profile
-                  </li>
+                    </li>
                   </Link>
+                </>)}
+
+
+                {user && (<>
+                  <div onClick={handleProfileClick}>
+                    <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                      Profile
+                    </li>
+                  </div>
                   <button onClick={handleLogout}>
-                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400  hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                    Logout
-                  </li>
-                </button>
+                    <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400  hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                      Logout
+                    </li>
+                  </button>
                 </>)}
               </motion.ul>
             )}
