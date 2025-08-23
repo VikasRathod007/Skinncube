@@ -72,7 +72,16 @@ export const getAssetUrl = (assetPath) => {
     baseUrl,
     fullUrl
   });
-
+  if (isDevelopment) {
+    console.log('Asset URL constructed:', {
+      assetPath,
+      domain,
+      protocol,
+      isDevelopment,
+      baseUrl,
+      fullUrl
+    });
+  }
   return fullUrl;
 };
 
