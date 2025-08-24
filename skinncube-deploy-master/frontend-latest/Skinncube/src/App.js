@@ -6,12 +6,8 @@ import {
   Route,
   ScrollRestoration,
 } from "react-router-dom";
-import Footer from "./components/home/Footer/Footer";
-import FooterBottom from "./components/home/Footer/FooterBottom";
-import Header from "./components/home/Header/Header";
-import HeaderBottom from "./components/home/Header/HeaderBottom";
-import HeaderBottom2 from "./components/home/Header/HeaderBottom2";
-import SpecialCase from "./components/SpecialCase/SpecialCase";
+// Replaced legacy stacked header/footer layout with consolidated AppShell
+import AppShell from './components/layout/AppShell';
 import About from "./pages/About/About";
 import SignIn from "./pages/Account/SignIn";
 import SignUp from "./pages/Account/SignUp";
@@ -38,20 +34,12 @@ import { useEffect } from "react";
 import { checkAuthAsync, selectLoggedInUser, selectUserInfo } from "./pages/Account/authHandle/authSlice";
 import Orders from "./pages/UserDashboard/Orders";
 
-const Layout = () => {
-  return (
-    <div>
-      <Header />
-      <HeaderBottom />
-      <HeaderBottom2 />
-      <SpecialCase />
-      <ScrollRestoration />
-      <Outlet />
-      <Footer />
-      <FooterBottom />
-    </div>
-  );
-};
+const Layout = () => (
+  <>
+    <ScrollRestoration />
+    <AppShell />
+  </>
+);
 
 const router = createBrowserRouter(
   createRoutesFromElements(

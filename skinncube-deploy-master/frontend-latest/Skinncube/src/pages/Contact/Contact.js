@@ -6,7 +6,9 @@ const Contact = () => {
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState("");
   useEffect(() => {
-    setPrevLocation(location.state.data);
+    // Defensive: location.state may be undefined when navigating directly
+    const data = location?.state?.data || "Home";
+    setPrevLocation(data);
   }, [location]);
 
   const [clientName, setclientName] = useState("");

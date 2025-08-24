@@ -4,6 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './design-system/tokens.css';
 @layer components {
   .hoverEffect {
     @apply duration-300 cursor-pointer;

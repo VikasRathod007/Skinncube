@@ -11,7 +11,8 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import orebiReducer from "./orebiSlice";
-import authReducer from "../pages/Account/authHandle/authSlice"
+import authReducer from "../pages/Account/authHandle/authSlice";
+import uiReducer from './uiSlice';
 
 const persistConfig = {
   key: "root",
@@ -25,6 +26,7 @@ export const store = configureStore({
   reducer: { 
     orebiReducer: persistedReducer,
     auth: authReducer,
+    ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
