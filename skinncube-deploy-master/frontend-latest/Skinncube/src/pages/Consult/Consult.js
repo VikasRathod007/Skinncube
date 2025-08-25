@@ -6,7 +6,8 @@ const Consult = () => {
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState("");
   useEffect(() => {
-    setPrevLocation(location.state.data);
+    const data = location?.state?.data || "Home";
+    setPrevLocation(data);
   }, [location]);
   return (
     <div className="max-w-container mx-auto px-4">
