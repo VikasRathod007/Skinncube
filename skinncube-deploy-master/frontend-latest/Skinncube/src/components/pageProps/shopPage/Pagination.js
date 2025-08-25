@@ -4,10 +4,14 @@ import { useSearchParams } from 'react-router-dom';
 import { fetchMedicines } from "../../../services/medicineService";
 import ProductCard from '../../home/Products/ProductCard';
 import ProductCardSkeleton from '../../home/Products/ProductCardSkeleton';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../../redux/orebiSlice';
+import { toast } from 'react-toastify';
 
 const SKELETON_COUNT = 9;
 
 const Pagination = ({ itemsPerPage, selectedSubcategories }) => {
+  const dispatch = useDispatch();
   const [items, setItems] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +31,10 @@ const Pagination = ({ itemsPerPage, selectedSubcategories }) => {
     const q = { page, limit };
     if(searchTerm) q.search = searchTerm;
     if(sort) q.sort = sort;
-    if(selectedSubcategories?.length) q.subcategories = selectedSubcategories.join(',');
+    // Backend expects 'subcategory' (singular). Send first selected or skip for multiple for now.
+    if(selectedSubcategories?.length === 1) {
+      q.subcategory = selectedSubcategories[0];
+    }
     return q;
   },[searchTerm, sort, selectedSubcategories]);
 
@@ -44,6 +51,13 @@ const Pagination = ({ itemsPerPage, selectedSubcategories }) => {
 
   useEffect(()=>{ fetchProducts(currentPage, itemsPerPage); },[currentPage, itemsPerPage, fetchProducts]);
 
+  // Reset to first page when search term or subcategory selection changes
+  useEffect(()=>{
+    setCurrentPage(1);
+    searchParams.set('page','1');
+    setSearchParams(searchParams, { replace:true });
+  },[searchTerm, selectedSubcategories]);
+
   const filteredItems = selectedSubcategories?.length ? items.filter(i=> selectedSubcategories.includes(i.subcategory?._id)) : items;
   const pageCount = Math.max(1, Math.ceil((totalCount || filteredItems.length)/itemsPerPage));
 
@@ -55,8 +69,17 @@ const Pagination = ({ itemsPerPage, selectedSubcategories }) => {
     window.scrollTo({top:0, behavior:'smooth'});
   };
 
-  const handleAddToCart = (item) => {
-    console.log('Add to cart', item._id);
+  const handleAddToCart = async (item) => {
+    try {
+      const resultAction = await dispatch(addToCart({ medicineId: item._id, quantity: 1 }));
+      if(addToCart.fulfilled.match(resultAction)){
+        toast.success('Added to cart');
+      } else {
+        toast.error(resultAction.payload?.message || 'Failed to add');
+      }
+    } catch(err){
+      toast.error('Failed to add');
+    }
   };
 
   return (
